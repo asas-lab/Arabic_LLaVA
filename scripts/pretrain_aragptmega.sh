@@ -4,7 +4,7 @@
 
 # MODEL_VERSION=vicuna-v1-3-7b
 # MODEL_VERSION=llama-2-7b-chat
-MODEL_NAME="/media/khalid/HDD2/Huggingface_models/aragpt2_mega"
+MODEL_NAME="bigscience/bloom-560m"
 json_file="/media/khalid/data_disk/llava_project/chat.json"
 image_dir="/media/khalid/data_disk/llava_project/images"
 ########### DO NOT CHANGE ###########
@@ -12,7 +12,7 @@ image_dir="/media/khalid/data_disk/llava_project/images"
 PROMPT_VERSION=plain
 ########### DO NOT CHANGE ###########
 
-deepspeed /home/khalid/Documents/github_rep/asas/Arabic_LLaVA/llava/train/train_mem.py \
+CUDA_VISIBLE_DEVICES=0 deepspeed /home/khalid/Documents/github_rep/asas/Arabic_LLaVA/llava/train/train_mem.py \
     --deepspeed ./zero2.json \
     --model_name_or_path $MODEL_NAME \
     --version $PROMPT_VERSION \
