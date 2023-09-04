@@ -20,27 +20,29 @@ import torch.nn as nn
 from torch.nn import CrossEntropyLoss
 
 from transformers import AutoConfig, AutoModelForCausalLM, AutoConfig,AutoModel
+from modeling_jais import JAISModel, JAISLMHeadModel
+from configuration_jais import JAISConfig
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
 from ..llava_arch import LlavaMetaModel, LlavaMetaForCausalLM
 
 
-class LlavahfConfig(AutoConfig):
-    model_type = "llava_hf"
+class LlavajaisConfig(AutoConfig):
+    model_type = "llava_jais"
 
 
-class LlavahfModel(LlavaMetaModel, AutoModel):
-    config_class = LlavahfConfig
+class LlavajaisModel(LlavaMetaModel, JAISModel):
+    config_class = LlavajaisModel
 
     def __init__(self, config: AutoConfig):
-        super(LlavahfModel, self).__init__(config)
+        super(LlavajaisModel, self).__init__(config)
 
 
-class LlavahfForCausalLM(AutoModelForCausalLM, LlavaMetaForCausalLM):
-    config_class = LlavahfConfig
+class LlavajaisForCausalLM(JAISLMHeadModel, LlavaMetaForCausalLM):
+    config_class = LlavajaisForCausalLM
 
     def __init__(self, config):
-        super(AutoModelForCausalLM, self).__init__(config)
+        super(JAISLMHeadModel, self).__init__(config)
         self.model = LlavahfModel(config)
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
@@ -134,5 +136,5 @@ class LlavahfForCausalLM(AutoModelForCausalLM, LlavaMetaForCausalLM):
         )
         return model_inputs
 
-AutoConfig.register("llava_hf", LlavahfConfig)
+AutoConfig.register("llava_jais", LlavahfConfig)
 AutoModelForCausalLM.register(LlavahfConfig, LlavahfForCausalLM)
