@@ -5,14 +5,14 @@
 # MODEL_VERSION=vicuna-v1-3-7b
 # MODEL_VERSION=llama-2-7b-chat
 MODEL_NAME="bigscience/bloom-560m"
-json_file="/media/khalid/data_disk/llava_project/chat.json"
-image_dir="/media/khalid/data_disk/llava_project/images"
+json_file="path-to-json-captioning"
+image_dir="path-to-image"
 ########### DO NOT CHANGE ###########
 ########### USE THIS FOR BOTH ###########
 PROMPT_VERSION=plain
 ########### DO NOT CHANGE ###########
 
-deepspeed /home/khalid/Documents/github_rep/asas/Arabic_LLaVA/llava/train/train_mem.py \
+deepspeed ./../Arabic_LLaVA/llava/train/train_mem.py \
     --deepspeed ./zero2.json \
     --model_name_or_path $MODEL_NAME \
     --version $PROMPT_VERSION \
