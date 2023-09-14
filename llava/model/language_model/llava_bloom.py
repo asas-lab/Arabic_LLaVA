@@ -19,29 +19,32 @@ import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss
 
-from transformers import AutoConfig, AutoModelForCausalLM, AutoConfig,AutoModel
+from transformers import AutoConfig, AutoModelForCausalLM, \
+                         BloomConfig, BloomModel, BloomForCausalLM
+
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
 from ..llava_arch import LlavaMetaModel, LlavaMetaForCausalLM
 
 
-class LlavahfConfig(AutoConfig):
-    model_type = "llava_hf"
+class LlavaBloomConfig(BloomConfig):
+    model_type = "llava_bloom"
 
 
-class LlavahfModel(LlavaMetaModel, AutoModel):
-    config_class = LlavahfConfig
+class LlavaBloomModel(LlavaMetaModel, BloomModel):
+    config_class = LlavaBloomConfig
 
-    def __init__(self, config: AutoConfig):
-        super(LlavahfModel, self).__init__(config)
+    def __init__(self, config: BloomConfig):
+        super(LlavaBloomModel, self).__init__(config)
+        # Define the token embeddings layer
+        self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
 
-
-class LlavahfForCausalLM(AutoModelForCausalLM, LlavaMetaForCausalLM):
-    config_class = LlavahfConfig
+class LlavaBloomForCausalLM(BloomForCausalLM, LlavaMetaForCausalLM):
+    config_class = LlavaBloomConfig
 
     def __init__(self, config):
-        super(AutoModelForCausalLM, self).__init__(config)
-        self.model = LlavahfModel(config)
+        super(BloomForCausalLM, self).__init__(config)
+        self.model = LlavaBloomModel(config)
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
@@ -50,6 +53,20 @@ class LlavahfForCausalLM(AutoModelForCausalLM, LlavaMetaForCausalLM):
 
     def get_model(self):
         return self.model
+
+    #def tie_weights(self):
+        # Tie the weights of output to the input embeddings
+    #    self.model.tie_weights()
+
+    def get_input_embeddings(self) -> nn.Module:
+        """
+        Returns the model's input embeddings.
+
+        Returns:
+            `nn.Module`: A torch module mapping vocabulary to hidden states.
+        """
+        return self.model.get_input_embeddings()
+
 
     def forward(
         self,
@@ -134,5 +151,5 @@ class LlavahfForCausalLM(AutoModelForCausalLM, LlavaMetaForCausalLM):
         )
         return model_inputs
 
-AutoConfig.register("llava_hf", LlavahfConfig)
-AutoModelForCausalLM.register(LlavahfConfig, LlavahfForCausalLM)
+AutoConfig.register("llava_bloom", LlavaBloomConfig )
+AutoModelForCausalLM.register(LlavaBloomConfig, LlavaBloomForCausalLM)
